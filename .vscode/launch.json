@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Wails: Production htmxtempl",
+      "type": "go",
+      "request": "launch",
+      "mode": "exec",
+      "program": "${workspaceFolder}/cmd/pdflive.exe",
+      "preLaunchTask": "build",
+      "args": [
+        "-local"
+      ],
+      "cwd": "${workspaceFolder}/cmd"
+    },
+    {
+      "name": "Wails: Debug htmxtempl",
+      "type": "go",
+      "request": "launch",
+      "mode": "exec",
+      "program": "${workspaceFolder}/cmd/pdflive.exe",
+      "preLaunchTask": "build debug",
+      "args": [
+         "-local"  
+      ],
+      "cwd": "${workspaceFolder}/cmd"
+    },
+    {
+      "name": "Wails: Dev htmxtempl",
+      "type": "go",
+      "request": "launch",
+      "mode": "exec",
+      "program": "${workspaceFolder}/cmd/pdflive.exe",
+      "preLaunchTask": "build dev",
+      "args": [
+        "-local"
+      ],
+      "cwd": "${workspaceFolder}/cmd"
+    }
+  ]
+}

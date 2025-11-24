@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	_ "embed"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"pdflive/app"
 	"pdflive/checkdbg"
 	"pdflive/config"
+	"pdflive/domain/models/application"
 	"pdflive/embedded"
 	"pdflive/reductor"
 	"pdflive/spaserver"
@@ -36,6 +38,7 @@ var dir string
 
 // если local true то папка создается локально
 var local = flag.Bool("local", false, "")
+var file = flag.String("file", "", "")
 
 func errMessageExit(loger *zap.SugaredLogger, title string, err error) {
 	if loger != nil {
@@ -103,6 +106,7 @@ func main() {
 		loger.Infof("pkg:config warning %s", cfg.Warning())
 	}
 
+	// inline func exit
 	errProcessExit := func(title string, err error) {
 		cancel()
 		errMessageExit(loger, title, err)
@@ -127,10 +131,36 @@ func main() {
 	// инициализируем пути необходимые приложению
 	app.CreatePath()
 
-	loger.Info("start repo")
-
-	// инициализируем Modle TODO
-	// reductor.Instance().SetModel(&modelTcl, false)
+	// инициализируем Model TODO
+	model, err := application.New(app)
+	if err != nil {
+		errProcessExit("Ошибка создания модели приложения", err)
+	}
+	if *file != "" {
+		// Read the file content into a byte slice
+		contentBytes, err := os.ReadFile(*file)
+		if err != nil {
+			errProcessExit("Ошибка чтения файла", err)
+		}
+		err = model.SetTemplate(contentBytes)
+		if err != nil {
+			errProcessExit("Ошибка чтения JSON", err)
+		}
+	} else {
+		if len(embedded.JsonExample) > 0 {
+			model.JsonSrc = make([]byte, 0, len(embedded.JsonExample))
+			err = model.SetTemplate(embedded.JsonExample)
+			if err != nil {
+				errProcessExit("Ошибка чтения JSON", err)
+			}
+		} else {
+			errProcessExit("Ошибка embedded JSON", errors.New("данные отсутствуют"))
+		}
+	}
+	err = reductor.Instance().SetModel(model, false)
+	if err != nil {
+		errProcessExit("Ошибка установки модели приложения", err)
+	}
 
 	// тесты
 	if err := checkdbg.NewChecks(app).Run(); err != nil {

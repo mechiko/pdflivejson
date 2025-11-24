@@ -21,7 +21,8 @@
       "program": "${workspaceFolder}/cmd/pdflive.exe",
       "preLaunchTask": "build debug",
       "args": [
-         "-local"  
+        // "-file", "example.json",
+        "-local"  
       ],
       "cwd": "${workspaceFolder}/cmd"
     },

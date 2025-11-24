@@ -6,6 +6,9 @@ import (
 	"net/http"
 )
 
+//go:embed example.json
+var JsonExample []byte
+
 //go:embed root
 var Root embed.FS
 

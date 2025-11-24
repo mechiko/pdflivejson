@@ -4,30 +4,15 @@ import (
 	"fmt"
 	"pdflive/config"
 	"pdflive/domain"
-	"time"
-
-	"github.com/mechiko/utility"
 )
 
 type Application struct {
-	model        domain.Model
-	Title        string
-	Export       string
-	Browser      utility.Browser
-	BrowserList  []string
-	Output       string
-	Debug        bool
-	Host         string
-	Port         string
-	DbLiteDesc   string
-	DbConfigDesc string
-	DbZnakDesc   string
-	DbA3Desc     string
-	License      string
-	FsrarID      string
-	startTime    time.Time
-	endTime      time.Time
-	period       string
+	model    domain.Model
+	Title    string
+	Debug    bool
+	License  string
+	JsonSrc  []byte
+	Template *domain.MarkTemplate
 }
 
 var _ domain.Modeler = (*Application)(nil)
@@ -35,9 +20,8 @@ var _ domain.Modeler = (*Application)(nil)
 // создаем модель считываем ее состояние и возвращаем указатель
 func New(app domain.Apper) (*Application, error) {
 	model := &Application{
-		model:       domain.Application,
-		Title:       "Application Title",
-		BrowserList: []string{string(utility.Default), string(utility.Chrome), string(utility.Firefox), string(utility.Yandex), string(utility.Edge)},
+		model: domain.Application,
+		Title: "Application Title",
 	}
 	if err := model.ReadState(app); err != nil {
 		return nil, fmt.Errorf("model application read state %w", err)
@@ -47,24 +31,22 @@ func New(app domain.Apper) (*Application, error) {
 
 // синхронизирует с приложением в сторону приложения из модели редуктора
 func (m *Application) SyncToStore(app domain.Apper) (err error) {
-	if err := app.SetOptions("export", m.Export); err != nil {
-		return fmt.Errorf("application sync to store: set export failed: %w", err)
-	}
-	if err := app.SetOptions("browser", string(m.Browser)); err != nil {
-		return fmt.Errorf("application sync to store: set browser failed: %w", err)
-	}
 	return nil
 }
 
 // читаем состояние приложения
 func (m *Application) ReadState(app domain.Apper) (err error) {
-	m.Export = app.Options().Export
-	m.Browser = utility.Browser(app.Options().Browser)
-	m.Output = app.Options().Output
-	m.Host = app.Options().Hostname
-	m.Port = app.Options().HostPort
 	m.Debug = config.Mode == "development"
 	m.License = app.Options().Application.License
+	if len(m.JsonSrc) == 0 {
+		m.Template = &domain.MarkTemplate{}
+	} else {
+		if m.Template, err = domain.NewMarkTemplate(m.JsonSrc); err != nil {
+			m.Template = &domain.MarkTemplate{}
+			return fmt.Errorf("%w", err)
+		}
+
+	}
 	return nil
 }
 
@@ -81,6 +63,20 @@ func (a *Application) Model() domain.Model {
 func (m *Application) Save(app domain.Apper) (err error) {
 	if err := app.SaveOptions(); err != nil {
 		return fmt.Errorf("application: save options failed: %w", err)
+	}
+	return nil
+}
+
+// читаем состояние приложения
+func (m *Application) SetTemplate(tmpl []byte) (err error) {
+	if len(tmpl) == 0 {
+		m.Template = &domain.MarkTemplate{}
+	} else {
+		if m.Template, err = domain.NewMarkTemplate(tmpl); err != nil {
+			m.Template = &domain.MarkTemplate{}
+			return fmt.Errorf("%w", err)
+		}
+
 	}
 	return nil
 }

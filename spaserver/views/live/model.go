@@ -9,15 +9,11 @@ import (
 
 // инициализируем модель вида
 func (t *page) InitData(app domain.Apper) (interface{}, error) {
-	model, err := reductor.Instance().Model(domain.Application)
+	model, err := reductor.Model[*application.Application](domain.Application)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
-	mdl, ok := model.(*application.Application)
-	if !ok {
-		return nil, fmt.Errorf("%w", err)
-	}
-	err = reductor.Instance().SetModel(mdl, false)
+	err = reductor.SetModel(model, false)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}

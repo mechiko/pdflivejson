@@ -93,3 +93,7 @@ body {
 .htmx-request.htmx-indicator{
     opacity:1
 }
+
+canvas {
+  border: 1px solid black;
+}

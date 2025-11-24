@@ -26,7 +26,7 @@ func (t *page) InitData(app domain.Apper) (interface{}, error) {
 		}
 		model.Items = append(model.Items, menuItem)
 	}
-	err = reductor.Instance().SetModel(model, false)
+	err = reductor.SetModel(model, false)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -34,16 +34,16 @@ func (t *page) InitData(app domain.Apper) (interface{}, error) {
 }
 
 func (t *page) PageData() (interface{}, error) {
-	return reductor.Instance().Model(t.modelType)
+	return reductor.Model[*MenuModel](t.modelType)
 }
 
 // с преобразованием
-func (t *page) PageModel() MenuModel {
-	model, _ := reductor.Instance().Model(t.modelType)
-	if mdl, ok := model.(MenuModel); ok {
-		return mdl
+func (t *page) PageModel() (model *MenuModel, err error) {
+	model, err = reductor.Model[*MenuModel](t.modelType)
+	if err != nil {
+		return &MenuModel{}, fmt.Errorf("%w", err)
 	}
-	return MenuModel{}
+	return model, nil
 }
 
 // сброс модели редуктора для страницы

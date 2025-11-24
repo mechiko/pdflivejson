@@ -1,0 +1,20 @@
+<div class="grid grid-cols-2 gap-4 h-96">
+  <div id="props" class="bg-white col-span-1">
+    {{ template "props" . }}
+  </div>
+  <div class="flex justify-center items-center bg-green-200 col-span-1">
+    <div id="pdfcanvas">
+      {{ template "canvas" . }}
+    </div>
+    <div class="m-2">
+      <button class="focus:shadow-outline rounded-md border-2 border-gray-500 px-1 py-0.5 font-medium text-gray-900 hover:bg-gray-700 hover:text-white focus:outline-none"
+              hx-get="/scaleup" hx-trigger="click" hx-target="#pdfcanvas" hx-swap="innerHTML">
+        +
+      </button>
+      <button class="focus:shadow-outline rounded-md border-2 border-gray-500 px-1 py-0.5 font-medium text-gray-900 hover:bg-gray-700 hover:text-white focus:outline-none"
+              hx-get="/scaledown" hx-trigger="click" hx-target="#pdfcanvas" hx-swap="innerHTML">
+        -
+      </button>
+    </div>
+  </div>
+</div>

@@ -142,14 +142,14 @@ func main() {
 		if err != nil {
 			errProcessExit("Ошибка чтения файла", err)
 		}
-		err = model.SetTemplate(contentBytes)
+		err = model.SetTemplate(app, contentBytes)
 		if err != nil {
 			errProcessExit("Ошибка чтения JSON", err)
 		}
 	} else {
 		if len(embedded.JsonExample) > 0 {
 			model.JsonSrc = make([]byte, 0, len(embedded.JsonExample))
-			err = model.SetTemplate(embedded.JsonExample)
+			err = model.SetTemplate(app, embedded.JsonExample)
 			if err != nil {
 				errProcessExit("Ошибка чтения JSON", err)
 			}
@@ -157,7 +157,7 @@ func main() {
 			errProcessExit("Ошибка embedded JSON", errors.New("данные отсутствуют"))
 		}
 	}
-	err = reductor.Instance().SetModel(model, false)
+	err = reductor.SetModel(model, false)
 	if err != nil {
 		errProcessExit("Ошибка установки модели приложения", err)
 	}

@@ -25,7 +25,7 @@ func (p *pdfProc) addDatamaxColumn(col core.Col, colTempl *domain.RowPrimitive, 
 	}
 	cis = ciss[indexCis]
 	fnc := cis.FNC1()
-	img, err := dmImg(fnc)
+	img, err := p.dmImg(fnc)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -47,7 +47,7 @@ func (p *pdfProc) addBarColumn(col core.Col, colTempl *domain.RowPrimitive, ciss
 	return nil
 }
 
-func (p *pdfProc) addJpgColumn(col core.Col, colTempl *domain.RowPrimitive, ciss []*utility.CisInfo) error {
+func (p *pdfProc) addJpgColumn(col core.Col, colTempl *domain.RowPrimitive, _ []*utility.CisInfo) error {
 	if p.assets != nil {
 		img, err := p.assets.Jpg(colTempl.Image)
 		if err != nil {
@@ -67,14 +67,8 @@ func (p *pdfProc) addJpgColumn(col core.Col, colTempl *domain.RowPrimitive, ciss
 
 func (p *pdfProc) addStringColumn(col core.Col, colTempl *domain.RowPrimitive, ciss []*utility.CisInfo) error {
 	cis := ciss[0]
-	party, err := p.vars.Get("party")
-	if err != nil {
-		return fmt.Errorf("page vars party get error %w", err)
-	}
-	idx, err := p.vars.Get("idx")
-	if err != nil {
-		return fmt.Errorf("page vars idx get error %w", err)
-	}
+	party := p.vars.Get("party")
+	idx := p.vars.Get("idx")
 	value := strings.ReplaceAll(colTempl.Value, "@party", party)
 	value = strings.ReplaceAll(value, "@idx", idx)
 	ean13 := strings.Trim(cis.Gtin, "0")
@@ -87,14 +81,8 @@ func (p *pdfProc) addStringColumn(col core.Col, colTempl *domain.RowPrimitive, c
 func (p *pdfProc) addArrayStringColumn(col core.Col, colTempl *domain.RowPrimitive, ciss []*utility.CisInfo) error {
 	comps := make([]core.Component, 0)
 	cis := ciss[0]
-	party, err := p.vars.Get("party")
-	if err != nil {
-		return fmt.Errorf("page vars party get error %w", err)
-	}
-	idx, err := p.vars.Get("idx")
-	if err != nil {
-		return fmt.Errorf("page vars idx get error %w", err)
-	}
+	party := p.vars.Get("party")
+	idx := p.vars.Get("idx")
 	for _, val := range colTempl.Values {
 		value := ""
 		if val.Value != "" {
@@ -108,7 +96,7 @@ func (p *pdfProc) addArrayStringColumn(col core.Col, colTempl *domain.RowPrimiti
 		}
 		if val.DataMatrix != "" {
 			fnc := cis.FNC1()
-			img, err := dmImg(fnc)
+			img, err := p.dmImg(fnc)
 			if err != nil {
 				return fmt.Errorf("%w", err)
 			}

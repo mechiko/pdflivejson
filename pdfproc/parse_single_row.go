@@ -17,6 +17,8 @@ import (
 // если не указывается высота то вставляется авто роу не важно на остальное
 // и текст из value
 func (p *pdfProc) parseSingleRow(pg core.Page, row1 *domain.RowPrimitive, ciss []*utility.CisInfo) error {
+	party := p.vars.Get("party")
+	idx := p.vars.Get("idx")
 	if row1.Value == "" && row1.DataMatrix == "" {
 		// пустая строка с высотой
 		pg.Add(
@@ -25,14 +27,6 @@ func (p *pdfProc) parseSingleRow(pg core.Page, row1 *domain.RowPrimitive, ciss [
 	} else {
 		if row1.RowHeight == 0 {
 			cis := ciss[0]
-			party, err := p.vars.Get("party")
-			if err != nil {
-				return fmt.Errorf("page vars party get error %w", err)
-			}
-			idx, err := p.vars.Get("idx")
-			if err != nil {
-				return fmt.Errorf("page vars idx get error %w", err)
-			}
 			value := strings.ReplaceAll(row1.Value, "@party", party)
 			value = strings.ReplaceAll(value, "@idx", idx)
 			ean13 := strings.Trim(cis.Gtin, "0")
@@ -46,7 +40,7 @@ func (p *pdfProc) parseSingleRow(pg core.Page, row1 *domain.RowPrimitive, ciss [
 			colNew := col.New(12)
 			if row1.DataMatrix != "" {
 				fnc := cis.FNC1()
-				img, err := dmImg(fnc)
+				img, err := p.dmImg(fnc)
 				if err != nil {
 					return fmt.Errorf("%w", err)
 				}
@@ -58,14 +52,6 @@ func (p *pdfProc) parseSingleRow(pg core.Page, row1 *domain.RowPrimitive, ciss [
 				)
 
 			} else {
-				party, err := p.vars.Get("party")
-				if err != nil {
-					return fmt.Errorf("page vars party get error %w", err)
-				}
-				idx, err := p.vars.Get("idx")
-				if err != nil {
-					return fmt.Errorf("page vars idx get error %w", err)
-				}
 				value := strings.ReplaceAll(row1.Value, "@party", party)
 				value = strings.ReplaceAll(value, "@idx", idx)
 				ean13 := strings.Trim(cis.Gtin, "0")

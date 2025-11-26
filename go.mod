@@ -13,6 +13,7 @@ require (
 	github.com/justinas/nosurf v1.2.0
 	github.com/karagenc/zap4echo v0.1.1
 	github.com/labstack/echo/v4 v4.13.4
+	github.com/mechiko/dmxing v0.0.0-20251125201543-35e439f018b8
 	github.com/mechiko/utility v0.0.0-20250901141646-cc9c20f08412
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
@@ -71,8 +72,9 @@ require (
 	golang.org/x/image v0.25.0 // indirect
 	golang.org/x/net v0.46.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
-	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

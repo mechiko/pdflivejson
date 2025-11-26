@@ -15,19 +15,22 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/props"
 )
 
-func (p *pdfProc) Create(tmpl *domain.MarkTemplate) (out []byte, err error) {
+func (p *pdfProc) Create(tmpl *domain.MarkTemplate, params map[string]string) (out []byte, err error) {
 	if err := p.BuildMaroto(tmpl); err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
-	err = p.SetVars("party", "party")
-	if err != nil {
-		return nil, fmt.Errorf(" %w", err)
+	if party, exist := params["party"]; exist {
+		err = p.SetVars("party", party)
+		if err != nil {
+			return nil, fmt.Errorf(" %w", err)
+		}
 	}
 	err = p.SetVars("idx", fmt.Sprintf("%06d", 100))
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
-	code := `0105000213100066215qiDHO-93lijm`
+	// code := `0105000213100066215qiDHO-93lijm`
+	code := `0108850999113005215!%P>dn931cat`
 	codeCis, _ := utility.ParseCisInfo(code)
 
 	if err := p.AddPageByTemplate(tmpl, []*utility.CisInfo{codeCis}); err != nil {

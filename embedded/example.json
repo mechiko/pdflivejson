@@ -1,5 +1,5 @@
 {
-  "Name": "20x20 Круг + Серийник",
+  "Name": "20x20 Круг + Party",
   "PageWidth": 20,
   "PageHeight": 20,
   "Margin": {"Top": 3, "Left": 0},
@@ -18,7 +18,7 @@
     ],
 	"06": [{
     "top": 0.5,
-	"value": "@serial",
+	  "value": "@party",
     "font_size": 6,
     "align": "C"
 	}]

@@ -5,18 +5,18 @@ import "fmt"
 // значения переменных для шаблона
 // индекс страницы
 // партия и другие
-type Vars struct {
+type Params struct {
 	value map[string]string
 }
 
-func NewVars() *Vars {
-	out := &Vars{
+func NewParams() *Params {
+	out := &Params{
 		value: map[string]string{},
 	}
 	return out
 }
 
-func (v *Vars) Add(name string, value string) error {
+func (v *Params) Add(name string, value string) error {
 	if name == "" {
 		return fmt.Errorf("is empty key")
 	}
@@ -24,12 +24,12 @@ func (v *Vars) Add(name string, value string) error {
 	return nil
 }
 
-func (v *Vars) Get(name string) (string, error) {
+func (v *Params) Get(name string) string {
 	if name == "" {
-		return "", fmt.Errorf("is empty key")
+		return ""
 	}
 	if val, exist := v.value[name]; exist {
-		return val, nil
+		return val
 	}
-	return "", fmt.Errorf("not exist key %s", name)
+	return ""
 }

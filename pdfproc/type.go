@@ -16,7 +16,7 @@ type pdfProc struct {
 	debug    bool
 	height   float64
 	width    float64
-	vars     *Vars
+	vars     *Params
 }
 
 func New(app domain.Apper, assets *assets.Assets) (*pdfProc, error) {
@@ -29,7 +29,7 @@ func New(app domain.Apper, assets *assets.Assets) (*pdfProc, error) {
 	p := &pdfProc{
 		Apper:  app,
 		assets: assets,
-		vars:   NewVars(),
+		vars:   NewParams(),
 	}
 	return p, nil
 }

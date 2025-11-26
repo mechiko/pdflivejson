@@ -136,20 +136,20 @@ func main() {
 	if err != nil {
 		errProcessExit("Ошибка создания модели приложения", err)
 	}
+	params := make(map[string]string)
 	if *file != "" {
 		// Read the file content into a byte slice
 		contentBytes, err := os.ReadFile(*file)
 		if err != nil {
 			errProcessExit("Ошибка чтения файла", err)
 		}
-		err = model.SetTemplate(app, contentBytes)
+		err = model.SetTemplate(app, contentBytes, params)
 		if err != nil {
 			errProcessExit("Ошибка чтения JSON", err)
 		}
 	} else {
 		if len(embedded.JsonExample) > 0 {
-			model.JsonSrc = make([]byte, 0, len(embedded.JsonExample))
-			err = model.SetTemplate(app, embedded.JsonExample)
+			err = model.SetTemplate(app, embedded.JsonExample, params)
 			if err != nil {
 				errProcessExit("Ошибка чтения JSON", err)
 			}

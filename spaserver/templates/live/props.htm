@@ -1,18 +1,17 @@
 <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
   <div class="mb-4">
     <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-      Серийный номер
+      Примечание
     </label>
-    <input
+    <input name="party" type="text"
       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      hx-post="/serial" hx-trigger="keyup changed delay:500ms" hx-target="#props" id="serial" type="text"
+      hx-post="/party" hx-trigger="keyup changed delay:500ms" hx-target="#pdf-canvas"
       placeholder="1234">
   </div>
   <div class="flex items-center justify-between">
     <button
       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-      hx-get="/update" hx-trigger="click" hx-target="#pdfcanvas" hx-swap="innerHTML"></button>
-    type="button">
+      hx-post="/update" hx-trigger="click" hx-target="#pdfcanvas" hx-swap="innerHTML">
     Применить
     </button>
   </div>

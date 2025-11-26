@@ -3,6 +3,7 @@ package application
 import (
 	"fmt"
 	"hash/crc32"
+	"maps"
 	"pdflive/assets"
 	"pdflive/config"
 	"pdflive/domain"
@@ -14,11 +15,12 @@ type Application struct {
 	Title     string
 	Debug     bool
 	License   string
-	JsonSrc   []byte
+	jsonSrc   []byte
 	ViewScale int
-	Template  *domain.MarkTemplate
-	Hash      uint32
-	Pdf       []byte
+	template  *domain.MarkTemplate
+	hash      uint32
+	pdf       []byte
+	params    map[string]string
 }
 
 var _ domain.Modeler = (*Application)(nil)
@@ -29,8 +31,9 @@ func New(app domain.Apper) (*Application, error) {
 		model:     domain.Application,
 		Title:     "Application Title",
 		ViewScale: 1,
-		Pdf:       make([]byte, 0),
-		JsonSrc:   make([]byte, 0),
+		pdf:       make([]byte, 0),
+		jsonSrc:   make([]byte, 0),
+		params:    make(map[string]string),
 	}
 	if err := model.ReadState(app); err != nil {
 		return nil, fmt.Errorf("model application read state %w", err)
@@ -47,11 +50,11 @@ func (m *Application) SyncToStore(app domain.Apper) (err error) {
 func (m *Application) ReadState(app domain.Apper) (err error) {
 	m.Debug = config.Mode == "development"
 	m.License = app.Options().Application.License
-	if len(m.JsonSrc) == 0 {
-		m.Template = &domain.MarkTemplate{}
+	if len(m.jsonSrc) == 0 {
+		m.template = &domain.MarkTemplate{}
 	} else {
-		if m.Template, err = domain.NewMarkTemplate(m.JsonSrc); err != nil {
-			m.Template = &domain.MarkTemplate{}
+		if m.template, err = domain.NewMarkTemplate(m.jsonSrc); err != nil {
+			m.template = &domain.MarkTemplate{}
 			return fmt.Errorf("%w", err)
 		}
 
@@ -76,33 +79,68 @@ func (m *Application) Save(app domain.Apper) (err error) {
 	return nil
 }
 
-// читаем состояние приложения
-func (m *Application) SetTemplate(app domain.Apper, tmpl []byte) (err error) {
+// устанавливаем шаблон и константы
+func (m *Application) SetTemplate(app domain.Apper, tmpl []byte, vars map[string]string) (err error) {
+	maps.Copy(m.params, vars)
+	m.jsonSrc = make([]byte, len(tmpl))
+	copy(m.jsonSrc, tmpl)
+	return m.UpdateJson(app)
+}
+
+func (m *Application) Bytes() (out []byte, err error) {
+	return m.pdf, nil
+}
+
+func (m *Application) SetParams(app domain.Apper, params map[string]string) (err error) {
+	maps.Copy(m.params, params)
+	return m.UpdatePdf(app)
+}
+
+func (m *Application) UpdateJson(app domain.Apper) (err error) {
 	crc32q := crc32.MakeTable(crc32.IEEE)
-	hash := crc32.Checksum(tmpl, crc32q)
-	if m.Hash != hash {
-		if len(tmpl) == 0 {
-			m.Template = &domain.MarkTemplate{}
+	hash := crc32.Checksum(m.jsonSrc, crc32q)
+	if m.hash != hash {
+		if len(m.jsonSrc) == 0 {
+			m.template = &domain.MarkTemplate{}
 		} else {
-			if m.Template, err = domain.NewMarkTemplate(tmpl); err != nil {
-				m.Template = &domain.MarkTemplate{}
+			if m.template, err = domain.NewMarkTemplate(m.jsonSrc); err != nil {
+				m.template = &domain.MarkTemplate{}
+				_ = m.UpdatePdf(app)
 				return fmt.Errorf("%w", err)
 			}
 		}
-		assets, err := assets.New("assets")
-		if err != nil {
-			return fmt.Errorf("Error assets: %w", err)
-		}
-		pdfDoc, err := pdfproc.New(app, assets)
-		if err != nil {
-			return fmt.Errorf("Error assets: %w", err)
-		}
-		m.Pdf, err = pdfDoc.Create(m.Template)
-		return err
+		return m.UpdatePdf(app)
 	}
 	return nil
 }
 
-func (m *Application) Bytes() (out []byte, err error) {
-	return m.Pdf, nil
+func (m *Application) UpdatePdf(app domain.Apper) (err error) {
+	assets, err := assets.New("assets")
+	if err != nil {
+		return fmt.Errorf("Error assets: %w", err)
+	}
+	pdfDoc, err := pdfproc.New(app, assets)
+	if err != nil {
+		return fmt.Errorf("Error assets: %w", err)
+	}
+	m.pdf, err = pdfDoc.Create(m.template, m.params)
+	return err
+}
+
+func (m *Application) GetParam(name string) string {
+	if name == "" {
+		return ""
+	}
+	if val, exist := m.params[name]; exist {
+		return val
+	}
+	return ""
+}
+
+func (m *Application) SetParam(app domain.Apper, name, value string) error {
+	if name == "" {
+		return nil
+	}
+	m.params[name] = value
+	return m.UpdatePdf(app)
 }
